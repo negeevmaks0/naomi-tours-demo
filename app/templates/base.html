@@ -1,0 +1,53 @@
+{% from "_icons.html" import icon with context %}<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#0f2a44">
+  <title>{% block title %}Naomi Tours — групповые поездки из Германии{% endblock %}</title>
+  <link rel="stylesheet" href="{{ static_url('css/style.css') }}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <div class="demo-banner">Демонстрационный прототип · заявки не являются бронированием · оплата не подключена</div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="logo" href="{{ base }}/" aria-label="Naomi Tours — на главную">
+        <span class="logo-mark">{{ icon("compass") }}</span>
+        <span class="logo-text">Naomi<b>Tours</b></span>
+      </a>
+      <nav class="nav" aria-label="Основное меню">
+        <a href="{{ base }}/tours" class="nav-link{% if active == 'tours' %} active{% endif %}">Туры</a>
+        <a href="{{ base }}/how" class="nav-link{% if active == 'how' %} active{% endif %}"><span class="nav-long">Как записаться</span><span class="nav-short">Запись</span></a>
+        <a href="{{ base }}/about" class="nav-link{% if active == 'about' %} active{% endif %}">О нас</a>
+      </nav>
+    </div>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div class="footer-brand">
+        <div class="logo logo-light"><span class="logo-mark">{{ icon("compass") }}</span><span class="logo-text">Naomi<b>Tours</b></span></div>
+        <p>Групповые поездки и экскурсии с выездом из Германии: авиатуры, автобусные туры выходного дня и отдых на море.</p>
+        {% if organizer %}<p class="footer-organizer">Организатор: {{ organizer.name }}{% if organizer.name and organizer.contact %} · {% endif %}{{ organizer.contact }}</p>{% endif %}
+      </div>
+      <div class="footer-col">
+        <h4>Путешествия</h4>
+        <a href="{{ base }}/tours">Все туры</a>
+        <a href="{{ sort_url('latest') }}">Дальние даты</a>
+      </div>
+      <div class="footer-col">
+        <h4>Информация</h4>
+        <a href="{{ base }}/how">Как записаться</a>
+        <a href="{{ base }}/how#faq">Вопросы и ответы</a>
+        <a href="{{ base }}/about">О нас</a>
+      </div>
+    </div>
+    <div class="container footer-bottom">
+      <p>Закрытый демонстрационный прототип. Содержание туров взято из публикаций организатора; даты с пометкой «условные даты» не являются подтверждёнными отправлениями. Заявка — запрос на рассмотрение, а не бронирование.</p>
+    </div>
+  </footer>
+</body>
+</html>

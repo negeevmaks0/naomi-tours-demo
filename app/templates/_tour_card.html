@@ -1,0 +1,25 @@
+{% from "_icons.html" import icon, transport_icon, tour_visual with context %}
+<a class="card" href="{{ base }}/tours/{{ tour.tour_code }}">
+  <div class="card-media">
+    {{ tour_visual(tour, "card-img") }}
+    <div class="card-chips">
+      <span class="chip chip-light">{{ icon("calendar") }}{{ format_date_range(tour.start_date, tour.end_date) }}</span>
+    </div>
+    {% if tour.dates_are_demo %}<span class="chip chip-demo card-demo">условные даты</span>{% endif %}
+  </div>
+  <div class="card-body">
+    <div class="card-kicker">
+      <span>{{ tour.destination }}</span>
+      {% if tour.transport %}<span class="dot"></span><span class="kicker-icon">{{ transport_icon(tour.transport) }}{{ tour.transport }}</span>{% endif %}
+    </div>
+    <h3 class="card-title">{{ tour.title }}</h3>
+    {% if tour.subtitle %}<p class="card-subtitle">{{ tour.subtitle }}</p>{% endif %}
+    <div class="card-footer">
+      <div class="card-price">
+        <small>Стоимость</small>
+        <b>{{ tour.price_label }}</b>
+      </div>
+      <span class="card-go" aria-hidden="true">{{ icon("arrow") }}</span>
+    </div>
+  </div>
+</a>

@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon, transport_icon, tour_visual with context %}
+{% block title %}{{ tour.title }} — Naomi Tours{% endblock %}
+{% block body_class %}page-tour{% endblock %}
+
+{% macro apply_button(extra_class="") %}
+  {% if start_link %}
+  <a class="btn btn-accent {{ extra_class }}" href="{{ start_link }}" target="_blank" rel="noopener">{{ icon("send") }} Оставить заявку</a>
+  {% else %}
+  <span class="btn btn-disabled {{ extra_class }}" title="BOT_USERNAME не задан в .env">Оставить заявку</span>
+  {% endif %}
+{% endmacro %}
+
+{% block content %}
+<section class="tour-hero">
+  {{ tour_visual(tour, "tour-hero-img") }}
+  <div class="tour-hero-shade"></div>
+  <div class="container tour-hero-inner">
+    <a class="crumb" href="{{ base }}/tours">{{ icon("back") }} Все туры</a>
+    <div class="tour-hero-chips">
+      <span class="chip chip-light">{{ tour.destination }}</span>
+      {% if tour.transport %}<span class="chip chip-light">{{ transport_icon(tour.transport) }}{{ tour.transport }}</span>{% endif %}
+    </div>
+    <h1>{{ tour.title }}</h1>
+    {% if tour.subtitle %}<p class="tour-hero-sub">{{ tour.subtitle }}</p>{% endif %}
+  </div>
+</section>
+{% if tour.image_note %}<div class="container"><p class="caption">{{ icon("info") }}{{ tour.image_note }}</p></div>{% endif %}
+
+<div class="container tour-layout">
+  <article class="tour-main">
+    <div class="date-box{% if tour.dates_are_demo %} demo{% endif %}">
+      <div class="date-main">{{ icon("calendar") }}<b>{{ format_date_range(tour.start_date, tour.end_date) }}</b>
+        {% if tour.dates_are_demo %}<span class="chip chip-demo">условные даты</span>{% endif %}
+      </div>
+      {% if tour.date_note %}<p class="date-note">{{ tour.date_note }}</p>{% endif %}
+    </div>
+
+    {% if not tour.listed %}
+    <p class="unlisted-note">{{ icon("info") }} Тур временно не показан в каталоге: программа и даты уточняются у организатора.</p>
+    {% endif %}
+
+    <p class="lead">{{ tour.summary }}</p>
+
+    {% if tour.route %}
+    <div class="route" aria-label="Маршрут">
+      {% for point in tour.route %}<span class="route-point">{{ point }}</span>{% endfor %}
+    </div>
+    {% endif %}
+
+    {% if tour.logistics %}
+    <section class="block">
+      <h2>{{ icon("route") }} Выезд и возвращение</h2>
+      <ul class="list">{% for item in tour.logistics %}<li>{{ item }}</li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+
+    {% if tour.program %}
+    <section class="block">
+      <h2>{{ icon("compass") }} Программа</h2>
+      <ol class="timeline">
+        {% for day in tour.program %}
+        <li>
+          <h3>{{ day.title }}</h3>
+          {% if day.text %}<p>{{ day.text }}</p>{% endif %}
+        </li>
+        {% endfor %}
+      </ol>
+    </section>
+    {% endif %}
+
+    {% if tour.prices %}
+    <section class="block">
+      <h2>{{ icon("euro") }} Стоимость</h2>
+      <div class="prices">
+        {% for price in tour.prices %}
+        <div class="price-row"><span>{{ price.label }}</span><b>{{ price.value }}</b></div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    {% if tour.included or tour.extras %}
+    <div class="two-col">
+      {% if tour.included %}
+      <section class="block">
+        <h2>В стоимость входит</h2>
+        <ul class="checklist">{% for item in tour.included %}<li>{{ icon("check", "ico ico-ok") }}<span>{{ item }}</span></li>{% endfor %}</ul>
+      </section>
+      {% endif %}
+      {% if tour.extras %}
+      <section class="block">
+        <h2>Дополнительно</h2>
+        <ul class="checklist">{% for item in tour.extras %}<li>{{ icon("plus", "ico ico-extra") }}<span>{{ item }}</span></li>{% endfor %}</ul>
+      </section>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    {% if tour.notes %}
+    <section class="block block-soft">
+      <h2>{{ icon("info") }} Примечания</h2>
+      <ul class="list">{% for item in tour.notes %}<li>{{ item }}</li>{% endfor %}</ul>
+    </section>
+    {% endif %}
+
+    <p class="pay-note">{{ icon("info") }} Условия бронирования и оплаты уточняются у организатора. Онлайн-оплата в демо не подключена.</p>
+  </article>
+
+  <aside class="booking">
+    <div class="booking-card">
+      <span class="booking-label">Стоимость</span>
+      <div class="booking-price">{{ tour.price_label }}</div>
+      <ul class="booking-facts">
+        <li>{{ icon("calendar") }}<span>{{ format_date_range(tour.start_date, tour.end_date) }}{% if tour.dates_are_demo %} <em>(условно)</em>{% endif %}</span></li>
+        {% if tour.duration %}<li>{{ icon("clock") }}<span>{{ tour.duration }}</span></li>{% endif %}
+        {% if tour.transport %}<li>{{ transport_icon(tour.transport) }}<span>{{ tour.transport }}</span></li>{% endif %}
+      </ul>
+      {{ apply_button("btn-block btn-lg") }}
+      {% if not start_link %}<p class="booking-hint">Telegram-бот не настроен: задайте BOT_USERNAME в .env.</p>{% endif %}
+      <p class="booking-hint">Откроется Telegram-бот с этим туром. Заявка — запрос на рассмотрение, а не бронирование; наличие мест система не проверяет.</p>
+    </div>
+  </aside>
+</div>
+
+<div class="sticky-cta">
+  <div class="sticky-info">
+    <b>{{ tour.price_label }}</b>
+    <small>{{ format_date_range(tour.start_date, tour.end_date) }}{% if tour.dates_are_demo %} · условно{% endif %}</small>
+  </div>
+  {{ apply_button() }}
+</div>
+{% endblock %}

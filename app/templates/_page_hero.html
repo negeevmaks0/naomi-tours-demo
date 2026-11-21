@@ -1,0 +1,9 @@
+{# Шапка внутренних страниц: фото (или градиент) с затемнением, заголовок и подзаголовок. #}
+<section class="page-hero{% if not hero_image %} page-hero-plain{% endif %}">
+  {% if hero_image %}<div class="page-hero-bg" style="background-image: url('{{ static_url(hero_image) }}')"></div>{% endif %}
+  <div class="container page-hero-inner">
+    <span class="eyebrow">{{ hero_eyebrow }}</span>
+    <h1>{{ hero_title }}</h1>
+    {% if hero_lead %}<p class="page-hero-lead">{{ hero_lead }}</p>{% endif %}
+  </div>
+</section>

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon with context %}
+{% block title %}{% if kind == "page" %}Страница не найдена{% else %}Тур недоступен{% endif %} — Naomi Tours{% endblock %}
+{% block content %}
+<section class="container section">
+  <div class="notfound">
+    <span class="notfound-icon">{{ icon("compass") }}</span>
+    {% if kind == "finished" %}
+    <h1>Тур уже начался или завершился</h1>
+    <p class="muted">Заявки на эту поездку больше не принимаются. Актуальные поездки — в каталоге.</p>
+    {% elif kind == "tour" %}
+    <h1>Тур не найден</h1>
+    <p class="muted">Возможно, ссылка устарела или содержит ошибку. Актуальные поездки — в каталоге.</p>
+    {% else %}
+    <h1>Страница не найдена</h1>
+    <p class="muted">Такой страницы на сайте нет. Возможно, адрес набран с ошибкой.</p>
+    {% endif %}
+    <div class="notfound-actions">
+      <a class="btn btn-accent btn-lg" href="{{ base }}/tours">Открыть каталог {{ icon("arrow") }}</a>
+      <a class="btn btn-ghost btn-lg" href="{{ base }}/">На главную</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

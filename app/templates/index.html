@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon with context %}
+{% block body_class %}page-home{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-bg" style="background-image: url('{{ static_url('images/sea-boat.jpg') }}')"></div>
+  <div class="container hero-inner">
+    <span class="eyebrow">Naomi Tours</span>
+    <h1>Групповые поездки из Франкфурта и Майнца</h1>
+    <p class="hero-lead">Авиа- и автобусные туры: Испания, Грузия, Франция. Выберите поездку на сайте — заявка отправляется через Telegram.</p>
+    <div class="hero-actions">
+      <a class="btn btn-accent btn-lg" href="{{ base }}/tours">Выбрать тур {{ icon("arrow") }}</a>
+      <a class="btn btn-glass btn-lg" href="{{ base }}/how">Как записаться</a>
+    </div>
+    <ul class="hero-facts">
+      <li>{{ icon("plane") }}<span>Авиа- и автобусные туры</span></li>
+      <li>{{ icon("list") }}<span>Программа и цены на странице тура</span></li>
+      <li>{{ icon("chat") }}<span>Заявка через Telegram</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow eyebrow-dark">Форматы поездок</span>
+      <h2>Какие поездки мы организуем</h2>
+    </div>
+  </div>
+  <div class="formats">
+    <div class="format" style="--h: 205">
+      <span class="format-icon">{{ icon("plane") }}</span>
+      <h3>Авиатуры</h3>
+      <p>Перелёт и экскурсионная программа на месте. Аэропорт вылета и трансфер до него указаны на странице каждого тура.</p>
+    </div>
+    <div class="format" style="--h: 18">
+      <span class="format-icon">{{ icon("bus") }}</span>
+      <h3>Автобусные туры</h3>
+      <p>Поездки на автобусе с посадкой во Франкфурте-на-Майне и Майнце — от туров выходного дня до отдыха на море.</p>
+    </div>
+    <div class="format" style="--h: 175">
+      <span class="format-icon">{{ icon("wave") }}</span>
+      <h3>Отдых на море</h3>
+      <p>Отель у моря с бассейнами и пляжем, а для желающих — экскурсии во время отдыха.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section band">
+  <div class="container">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow eyebrow-dark">Ближайшие поездки</span>
+        <h2>Скоро выезжаем</h2>
+      </div>
+      <a class="link-more" href="{{ base }}/tours">Все туры ({{ total }}) {{ icon("arrow") }}</a>
+    </div>
+    {% if tours %}
+    <div class="grid">
+      {% for tour in tours %}{% include "_tour_card.html" %}{% endfor %}
+    </div>
+    {% else %}
+    <p class="empty">Сейчас нет актуальных туров.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="container section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow eyebrow-dark">Почему с нами удобно</span>
+      <h2>Всё понятно ещё до поездки</h2>
+    </div>
+  </div>
+  <div class="features">
+    <div class="feature">
+      <span class="feature-icon">{{ icon("pin") }}</span>
+      <h3>Выезд из Германии</h3>
+      <p>Посадка во Франкфурте-на-Майне и Майнце. Детали выезда — на странице тура.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">{{ icon("compass") }}</span>
+      <h3>Программа тура</h3>
+      <p>Маршрут и экскурсии — на странице тура. Если детали ещё уточняются, это указано.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">{{ icon("list") }}</span>
+      <h3>Прозрачная стоимость</h3>
+      <p>Отдельно показано, что входит в цену, а что оплачивается дополнительно.</p>
+    </div>
+    <div class="feature">
+      <span class="feature-icon">{{ icon("chat") }}</span>
+      <h3>Заявка в Telegram</h3>
+      <p>Бот откроется сразу с выбранным туром — нужно только имя.</p>
+    </div>
+  </div>
+</section>
+
+<section class="container section-bottom">
+  <div class="cta-banner">
+    <div>
+      <h2>Выберите своё следующее путешествие</h2>
+      <p>Все актуальные поездки — в одном каталоге.</p>
+    </div>
+    <a class="btn btn-accent btn-lg" href="{{ base }}/tours">Открыть каталог {{ icon("arrow") }}</a>
+  </div>
+</section>
+{% endblock %}
