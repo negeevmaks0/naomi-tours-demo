@@ -18,7 +18,8 @@
   <div class="container tour-hero-inner">
     <a class="crumb" href="{{ base }}/tours">{{ icon("back") }} Все туры</a>
     <div class="tour-hero-chips">
-      <span class="chip chip-light">{{ tour.destination }}</span>
+      <span class="chip chip-light">{{ icon("calendar") }}{{ format_date_range(tour.start_date, tour.end_date) }}</span>
+      {% if tour.dates_are_demo %}<span class="chip chip-demo">условные даты</span>{% endif %}
       {% if tour.transport %}<span class="chip chip-light">{{ transport_icon(tour.transport) }}{{ tour.transport }}</span>{% endif %}
     </div>
     <h1>{{ tour.title }}</h1>
@@ -29,16 +30,10 @@
 
 <div class="container tour-layout">
   <article class="tour-main">
-    <div class="date-box{% if tour.dates_are_demo %} demo{% endif %}">
-      <div class="date-main">{{ icon("calendar") }}<b>{{ format_date_range(tour.start_date, tour.end_date) }}</b>
-        {% if tour.dates_are_demo %}<span class="chip chip-demo">условные даты</span>{% endif %}
-      </div>
-      {% if tour.date_note %}<p class="date-note">{{ tour.date_note }}</p>{% endif %}
-    </div>
-
     {% if not tour.listed %}
-    <p class="unlisted-note">{{ icon("info") }} Тур временно не показан в каталоге: программа и даты уточняются у организатора.</p>
+    <p class="unlisted-note">{{ icon("info") }} Тура нет в каталоге: программа и даты уточняются.</p>
     {% endif %}
+    {% if tour.date_note %}<p class="date-note">{{ icon("calendar") }} {{ tour.date_note }}</p>{% endif %}
 
     <p class="lead">{{ tour.summary }}</p>
 
@@ -104,7 +99,7 @@
     </section>
     {% endif %}
 
-    <p class="pay-note">{{ icon("info") }} Условия бронирования и оплаты уточняются у организатора. Онлайн-оплата в демо не подключена.</p>
+    <p class="pay-note">{{ icon("info") }} Условия оплаты сообщает организатор.</p>
   </article>
 
   <aside class="booking">
@@ -118,7 +113,7 @@
       </ul>
       {{ apply_button("btn-block btn-lg") }}
       {% if not start_link %}<p class="booking-hint">Telegram-бот не настроен: задайте BOT_USERNAME в .env.</p>{% endif %}
-      <p class="booking-hint">Откроется Telegram-бот с этим туром. Заявка — запрос на рассмотрение, а не бронирование; наличие мест система не проверяет.</p>
+      <p class="booking-hint">Заявка не является бронированием.</p>
     </div>
   </aside>
 </div>

@@ -50,7 +50,6 @@ p { margin: 0 0 1em; }
   display: inline-block; font-size: .78rem; font-weight: 700; letter-spacing: .14em;
   text-transform: uppercase; color: #ffd9c2; margin-bottom: 12px;
 }
-.eyebrow-dark { color: var(--accent); }
 
 /* --- Шапка --- */
 .demo-banner {
@@ -128,9 +127,6 @@ p { margin: 0 0 1em; }
 .hero h1 { color: #fff; max-width: 680px; font-size: clamp(2.1rem, 7vw, 3.6rem); }
 .hero-lead { max-width: 560px; font-size: 1.08rem; color: #dde6ee; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin: 26px 0 34px; }
-.hero-facts { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px 26px; }
-.hero-facts li { display: flex; align-items: center; gap: 8px; font-size: .92rem; color: #e8eef4; }
-.hero-facts .ico { color: #ffc29e; width: 1.25em; height: 1.25em; }
 @media (max-width: 560px) {
   .hero-inner { padding-top: 48px; padding-bottom: 44px; }
   .hero-actions .btn { flex: 1 1 100%; }
@@ -199,7 +195,6 @@ p { margin: 0 0 1em; }
 .ph-name { font-family: var(--serif); font-size: clamp(1.7rem, 5vw, 2.4rem); font-weight: 700; letter-spacing: .02em; text-shadow: 0 2px 18px rgba(0, 0, 0, .25); }
 
 /* --- Как записаться --- */
-.how { background: var(--surface); }
 .steps { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 18px; grid-template-columns: 1fr; }
 @media (min-width: 800px) { .steps { grid-template-columns: repeat(3, 1fr); } }
 .steps li { background: var(--sand); border-radius: var(--radius); padding: 24px; }
@@ -245,10 +240,6 @@ p { margin: 0 0 1em; }
   .tour-layout { grid-template-columns: minmax(0, 1fr) 340px; gap: 40px; padding-bottom: 60px; }
 }
 
-.date-box { background: var(--surface); border-radius: var(--radius-sm); padding: 16px 18px; box-shadow: var(--shadow); }
-.date-box.demo { border-left: 4px solid var(--accent); }
-.date-main { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; color: var(--navy); font-size: 1.08rem; }
-.date-main .ico { color: var(--accent); }
 .date-note { font-size: .88rem; color: var(--muted); margin: 6px 0 0; }
 
 .lead { font-size: 1.12rem; color: #3a4552; margin: 22px 0; }
@@ -351,7 +342,6 @@ p { margin: 0 0 1em; }
 /* --- Общие секции --- */
 .section-bottom { padding-bottom: 64px; }
 .band { background: linear-gradient(180deg, #fff 0%, #fbf8f3 100%); }
-.band .info-card { background: var(--sand); }
 .cta-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 
 /* --- Шапка внутренних страниц --- */
@@ -407,12 +397,6 @@ p { margin: 0 0 1em; }
 .format-link { margin-top: auto; display: inline-flex; align-items: center; gap: 6px; font-weight: 700; }
 
 /* --- Преимущества --- */
-.features { display: grid; gap: 18px; grid-template-columns: 1fr; }
-@media (min-width: 640px) { .features { grid-template-columns: repeat(2, 1fr); } }
-@media (min-width: 1000px) { .features { grid-template-columns: repeat(4, 1fr); } }
-.feature { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); }
-.feature h3 { margin: 14px 0 6px; }
-.feature p { margin: 0; color: var(--muted); font-size: .94rem; }
 .feature-icon { display: grid; place-items: center; width: 46px; height: 46px; border-radius: 14px; background: #fcebe1; color: var(--accent); }
 .feature-icon .ico { width: 22px; height: 22px; }
 
@@ -421,11 +405,6 @@ p { margin: 0 0 1em; }
 @media (min-width: 800px) { .steps-4 { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1080px) { .steps-4 { grid-template-columns: repeat(4, 1fr); } }
 .steps-4 li { background: var(--surface); box-shadow: var(--shadow); }
-.two-col-info { display: grid; gap: 18px; grid-template-columns: 1fr; }
-@media (min-width: 760px) { .two-col-info { grid-template-columns: 1fr 1fr; } }
-.info-card { border-radius: var(--radius); padding: 26px; background: var(--surface); }
-.info-card h3 { margin: 14px 0 14px; font-size: 1.15rem; }
-.ico-no { color: #b4472c; background: #f9e2da; transform: rotate(45deg); }
 
 .faq { display: grid; gap: 12px; max-width: 860px; }
 .faq details { background: var(--surface); border-radius: var(--radius-sm); box-shadow: var(--shadow); padding: 0 22px; }
@@ -442,11 +421,6 @@ p { margin: 0 0 1em; }
 .about-intro { display: grid; gap: 32px; grid-template-columns: 1fr; align-items: start; }
 @media (min-width: 900px) { .about-intro { grid-template-columns: 1.3fr 1fr; gap: 48px; } }
 .about-intro .lead { margin-top: 0; }
-.about-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; }
-.about-points li { display: flex; gap: 14px; align-items: flex-start; background: var(--surface); border-radius: var(--radius-sm); padding: 16px 18px; box-shadow: var(--shadow); }
-.about-points .ico { width: 24px; height: 24px; color: var(--accent); margin-top: 2px; }
-.about-points b { display: block; color: var(--navy); }
-.about-points span { color: var(--muted); font-size: .92rem; }
 .places { display: grid; gap: 14px; grid-template-columns: repeat(2, 1fr); }
 @media (min-width: 760px) { .places { grid-template-columns: repeat(3, 1fr); } }
 .place {
@@ -476,3 +450,43 @@ p { margin: 0 0 1em; }
 @media (min-width: 900px) {
   .hero-bg, .page-hero-bg { filter: blur(2px); transform: scale(1.04); }
 }
+/* --- Редакция без лишнего текста: новые элементы --- */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Первый экран: текст слева, ближайший выезд справа */
+.hero-inner { display: grid; gap: 28px; align-items: end; }
+@media (min-width: 900px) { .hero-inner { grid-template-columns: minmax(0, 1fr) 340px; padding-bottom: 72px; } }
+.hero-text .hero-actions { margin-bottom: 0; }
+.next-trip {
+  display: flex; flex-direction: column; gap: 6px; padding: 20px 22px; border-radius: var(--radius);
+  color: #fff; text-decoration: none; background: rgba(255, 255, 255, .12);
+  border: 1px solid rgba(255, 255, 255, .28); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  transition: background .2s, transform .2s;
+}
+.next-trip:hover { background: rgba(255, 255, 255, .2); transform: translateY(-2px); }
+.next-trip-label { font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #ffc29e; }
+.next-trip-title { font-family: var(--serif); font-size: 1.3rem; line-height: 1.25; }
+.next-trip-meta { display: flex; align-items: center; gap: 6px; font-size: .9rem; color: #dde6ee; }
+.next-trip-price { margin-top: 6px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .2); font-weight: 700; }
+
+/* Заголовки секций без надзаголовков */
+.section-head { align-items: center; }
+.band h2 { margin-bottom: 24px; }
+.formats .format { min-height: 0; }
+.format h3 { margin-top: 16px; }
+.format p { margin: 0; }
+
+/* «О нас»: плитки вместо списка с пояснениями */
+.about-points { list-style: none; margin: 0; padding: 0; display: grid; gap: 12px; grid-template-columns: 1fr 1fr; }
+.about-points li {
+  display: flex; flex-direction: column; gap: 10px; padding: 18px; border-radius: var(--radius-sm);
+  background: var(--surface); box-shadow: var(--shadow); color: var(--navy);
+}
+.about-points .ico { width: 26px; height: 26px; color: var(--accent); }
+
+/* Баннер-призыв с одним заголовком */
+.cta-banner h2 { margin: 0; }
+
+/* Примечание к датам на странице тура */
+.date-note { display: flex; align-items: center; gap: 8px; margin: 16px 0 0; color: var(--muted); font-size: .92rem; }
+.tour-hero-chips .chip-demo { background: #fff1e0; }

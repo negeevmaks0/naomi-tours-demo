@@ -97,7 +97,7 @@ def test_unlisted_tour_hidden_from_catalog_but_direct_link_works(client):
     assert "/tours/lisbon_2027_01" not in client.get("/").text
     page = client.get("/tours/lisbon_2027_01")
     assert page.status_code == 200
-    assert "временно не показан в каталоге" in page.text
+    assert "Тура нет в каталоге" in page.text
     assert f"https://t.me/{TEST_BOT_USERNAME}?start=lisbon_2027_01" in page.text
 
 

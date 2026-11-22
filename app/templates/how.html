@@ -5,82 +5,45 @@
 {% set hero_image = None %}
 {% set hero_eyebrow = "Запись на тур" %}
 {% set hero_title = "Как записаться" %}
-{% set hero_lead = "Заявка оставляется через Telegram-бот: он сразу знает, какой тур вы выбрали. Без регистрации и длинных форм." %}
+{% set hero_lead = "Через Telegram, без регистрации." %}
 {% include "_page_hero.html" %}
 
 <section class="container section">
   <ol class="steps steps-4">
-    <li><span class="step-num">1</span><h3>Выберите тур</h3><p>В <a href="{{ base }}/tours">каталоге</a> откройте страницу поездки: даты, программа, цены, что входит в стоимость.</p></li>
-    <li><span class="step-num">2</span><h3>Нажмите «Оставить заявку»</h3><p>Откроется Telegram-бот с выбранным туром — код тура передаётся автоматически, вводить ничего не нужно.</p></li>
-    <li><span class="step-num">3</span><h3>Укажите имя</h3><p>Добавьте комментарий, если нужно (например, сколько вас человек), проверьте сводку и отправьте.</p></li>
-    <li><span class="step-num">4</span><h3>Ожидайте ответа</h3><p>Организатор рассматривает заявку и уточняет детали поездки, размещение и условия оплаты.</p></li>
+    <li><span class="step-num">1</span><h3>Выберите тур</h3><p>В <a href="{{ base }}/tours">каталоге</a> — даты, программа и цены.</p></li>
+    <li><span class="step-num">2</span><h3>Нажмите «Оставить заявку»</h3><p>Бот откроется уже с этим туром.</p></li>
+    <li><span class="step-num">3</span><h3>Укажите имя</h3><p>Комментарий — по желанию. Паспорт и платёжные данные не нужны.</p></li>
+    <li><span class="step-num">4</span><h3>Дождитесь ответа</h3><p>Организатор уточнит детали и оплату.</p></li>
   </ol>
 </section>
 
-<section class="section band">
-  <div class="container two-col-info">
-    <div class="info-card">
-      <span class="feature-icon">{{ icon("check") }}</span>
-      <h3>Что мы спрашиваем</h3>
-      <ul class="checklist">
-        <li>{{ icon("check", "ico ico-ok") }}<span>Имя — как к вам обращаться</span></li>
-        <li>{{ icon("check", "ico ico-ok") }}<span>Комментарий — по желанию</span></li>
-        <li>{{ icon("check", "ico ico-ok") }}<span>Ваш Telegram-аккаунт определяется автоматически</span></li>
-      </ul>
-    </div>
-    <div class="info-card">
-      <span class="feature-icon">{{ icon("shield") }}</span>
-      <h3>Что не нужно отправлять</h3>
-      <ul class="checklist">
-        <li>{{ icon("plus", "ico ico-no") }}<span>Паспортные данные и дату рождения</span></li>
-        <li>{{ icon("plus", "ico ico-no") }}<span>Банковские и платёжные данные</span></li>
-        <li>{{ icon("plus", "ico ico-no") }}<span>Оплату через бота — она не принимается</span></li>
-      </ul>
+<section class="section band" id="faq">
+  <div class="container">
+    <h2>Частые вопросы</h2>
+    <div class="faq">
+      <details>
+        <summary>Заявка — это бронирование?{{ icon("plus") }}</summary>
+        <p>Нет. Место подтверждает организатор после рассмотрения заявки.</p>
+      </details>
+      <details>
+        <summary>Как оплатить?{{ icon("plus") }}</summary>
+        <p>Условия оплаты сообщает организатор. На сайте и в боте оплаты нет.</p>
+      </details>
+      <details>
+        <summary>Откуда выезд?{{ icon("plus") }}</summary>
+        <p>Из Франкфурта-на-Майне и Майнца. Время и место — на странице тура.</p>
+      </details>
+      <details>
+        <summary>Что значит «условные даты»?{{ icon("plus") }}</summary>
+        <p>Это демо-версия: такие даты показаны для примера и не подтверждены.</p>
+      </details>
     </div>
   </div>
 </section>
 
-<section class="container section" id="faq">
-  <div class="section-head">
-    <div>
-      <span class="eyebrow eyebrow-dark">Вопросы и ответы</span>
-      <h2>Частые вопросы</h2>
-    </div>
-  </div>
-  <div class="faq">
-    <details>
-      <summary>Заявка — это уже бронирование?{{ icon("plus") }}</summary>
-      <p>Нет. Заявка — это запрос на рассмотрение. Она не подтверждает бронирование и наличие свободных мест.</p>
-    </details>
-    <details>
-      <summary>Как оплатить поездку?{{ icon("plus") }}</summary>
-      <p>Условия бронирования и оплаты уточняются у организатора после рассмотрения заявки. Онлайн-оплата на сайте и в боте не подключена.</p>
-    </details>
-    <details>
-      <summary>Откуда выезжает группа?{{ icon("plus") }}</summary>
-      <p>В турах каталога сбор группы — во Франкфурте-на-Майне и Майнце. Точные места и время указаны на странице каждого тура.</p>
-    </details>
-    <details>
-      <summary>Что входит в стоимость?{{ icon("plus") }}</summary>
-      <p>Это зависит от тура. На странице поездки есть разделы «В стоимость входит» и «Дополнительно» — там перечислено, что оплачивается отдельно: входные билеты, страховки, багаж и т. п.</p>
-    </details>
-    <details>
-      <summary>Почему у некоторых туров «условные даты»?{{ icon("plus") }}</summary>
-      <p>Это демонстрационная версия сайта. Даты с такой пометкой показаны для примера и не являются подтверждёнными отправлениями.</p>
-    </details>
-    <details>
-      <summary>Можно ли отменить заявку?{{ icon("plus") }}</summary>
-      <p>Пока заявка не отправлена, её можно отменить в боте кнопкой «Отменить» или командой /cancel.</p>
-    </details>
-  </div>
-</section>
-
-<section class="container section-bottom">
+<section class="container section">
   <div class="cta-banner">
-    <div>
-      <h2>Готовы выбрать поездку?</h2>
-      <p>Откройте каталог и нажмите «Оставить заявку» на странице тура.</p>
-    </div>
+    <h2>Готовы выбрать поездку?</h2>
     <div class="cta-actions">
       <a class="btn btn-accent btn-lg" href="{{ base }}/tours">Открыть каталог {{ icon("arrow") }}</a>
       {% if bot_link %}<a class="btn btn-glass btn-lg" href="{{ bot_link }}" target="_blank" rel="noopener">{{ icon("send") }} Бот в Telegram</a>{% endif %}

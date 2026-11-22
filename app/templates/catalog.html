@@ -5,14 +5,14 @@
 {% set hero_image = "images/sea-boat.jpg" %}
 {% set hero_eyebrow = "Каталог" %}
 {% set hero_title = "Все туры" %}
-{% set hero_lead = "Авиатуры, автобусные поездки и отдых на море с выездом из Германии." %}
+{% set hero_lead = None %}
 {% include "_page_hero.html" %}
 
-<section class="container section-tight">
+<section class="container section-tight section-bottom">
   <div class="catalog-bar">
     <p class="catalog-count"><b>{{ tours|length }}</b> {{ "поездка" if tours|length == 1 else ("поездки" if tours|length < 5 else "поездок") }}</p>
     <form class="sort" method="get" action="{{ base }}/tours">
-      <label for="sort">Сортировка</label>
+      <label for="sort" class="visually-hidden">Сортировка</label>
       <select id="sort" name="sort" onchange="location.href = this.selectedOptions[0].dataset.url">
         {% for value, label in sort_options.items() %}
         <option value="{{ value }}" data-url="{{ sort_url(value) }}"{% if value == sort %} selected{% endif %}>{{ label }}</option>
@@ -29,15 +29,5 @@
   {% else %}
   <p class="empty">Сейчас нет актуальных туров.</p>
   {% endif %}
-</section>
-
-<section class="container section">
-  <div class="cta-banner">
-    <div>
-      <h2>Как записаться на тур?</h2>
-      <p>Три простых шага через Telegram — без регистрации и форм на сайте.</p>
-    </div>
-    <a class="btn btn-accent btn-lg" href="{{ base }}/how">Подробнее {{ icon("arrow") }}</a>
-  </div>
 </section>
 {% endblock %}

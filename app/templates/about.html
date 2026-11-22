@@ -4,17 +4,15 @@
 {% block content %}
 {% set hero_image = "images/andalusia.jpg" %}
 {% set hero_eyebrow = "О нас" %}
-{% set hero_title = "Путешествуем группой — из Германии" %}
-{% set hero_lead = "Организуем групповые поездки и экскурсии с выездом из Франкфурта-на-Майне и Майнца." %}
+{% set hero_title = "Путешествуем группой из Германии" %}
+{% set hero_lead = None %}
 {% include "_page_hero.html" %}
 
 <section class="container section">
   <div class="about-intro">
     <div>
-      <span class="eyebrow eyebrow-dark">Чем мы занимаемся</span>
-      <h2>Поездки, где обо всём уже подумали</h2>
-      <p class="lead">Мы собираем группы для поездок по Европе и за её пределы: от туров выходного дня до отдыха на море и авиатуров с насыщенной программой. Маршрут, переезды, отели и экскурсии продуманы заранее — вам остаётся выбрать даты и наслаждаться поездкой.</p>
-      <p class="muted">На странице каждого тура описаны выезд, переезды, отели и экскурсии — насколько они уже известны. Если что-то ещё уточняется, это указано отдельно.</p>
+      <h2>Чем мы занимаемся</h2>
+      <p class="lead">Собираем группы для поездок по Европе и в Грузию: туры выходного дня, отдых на море и авиатуры с экскурсиями. Выезд — из Франкфурта-на-Майне и Майнца.</p>
       {% if organizer %}
       <div class="organizer-card">
         <span class="feature-icon">{{ icon("users") }}</span>
@@ -27,68 +25,29 @@
       {% endif %}
     </div>
     <ul class="about-points">
-      <li>{{ icon("users", "ico") }}<div><b>Групповые поездки</b><span>Общий выезд и общая программа для всей группы.</span></div></li>
-      <li>{{ icon("bus", "ico") }}<div><b>Автобус и самолёт</b><span>Туры выходного дня, длинные маршруты и авиатуры.</span></div></li>
-      <li>{{ icon("compass", "ico") }}<div><b>Экскурсии с гидами</b><span>В программах — города, музеи, дегустации и мастер-классы.</span></div></li>
-      <li>{{ icon("wave", "ico") }}<div><b>Отдых на море</b><span>Испания, Хорватия и другие побережья.</span></div></li>
+      <li>{{ icon("users", "ico") }}<b>Групповые поездки</b></li>
+      <li>{{ icon("bus", "ico") }}<b>Автобус и самолёт</b></li>
+      <li>{{ icon("compass", "ico") }}<b>Экскурсии с гидами</b></li>
+      <li>{{ icon("wave", "ico") }}<b>Отдых на море</b></li>
     </ul>
   </div>
 </section>
 
 <section class="section band">
   <div class="container">
-    <div class="section-head">
-      <div>
-        <span class="eyebrow eyebrow-dark">География</span>
-        <h2>Куда мы ездим</h2>
-      </div>
-    </div>
+    <h2>Куда мы ездим</h2>
     <div class="places">
       {% for place in ["Испания", "Португалия", "Франция", "Грузия", "Хорватия", "Германия"] %}
       <div class="place" style="--h: {{ destination_hue(place) }}"><span>{{ place }}</span></div>
       {% endfor %}
     </div>
-    <p class="muted small-note">Среди программ — Андалусия, Лиссабон, Бургундия, Коста Брава, Грузия, рождественские ярмарки Германии и Франции. Актуальные поездки — в <a href="{{ base }}/tours">каталоге</a>.</p>
+    <p class="muted small-note">Андалусия, Лиссабон, Бургундия, Коста Брава, рождественские ярмарки Германии и Франции.</p>
   </div>
 </section>
 
 <section class="container section">
-  <div class="section-head">
-    <div>
-      <span class="eyebrow eyebrow-dark">Наши принципы</span>
-      <h2>Как мы работаем</h2>
-    </div>
-  </div>
-  <div class="features">
-    <div class="feature">
-      <span class="feature-icon">{{ icon("list") }}</span>
-      <h3>Честная программа</h3>
-      <p>Публикуем маршрут, переезды, отели и экскурсии — и отмечаем, что ещё уточняется.</p>
-    </div>
-    <div class="feature">
-      <span class="feature-icon">{{ icon("euro") }}</span>
-      <h3>Цены без сюрпризов</h3>
-      <p>Сразу видно, что входит в стоимость, а что — входные билеты, страховки, багаж — оплачивается отдельно.</p>
-    </div>
-    <div class="feature">
-      <span class="feature-icon">{{ icon("shield") }}</span>
-      <h3>Минимум личных данных</h3>
-      <p>Для заявки достаточно имени. Мы не просим паспортные и платёжные данные через сайт или бот.</p>
-    </div>
-    <div class="feature">
-      <span class="feature-icon">{{ icon("chat") }}</span>
-      <h3>На связи в Telegram</h3>
-      <p>Заявки, вопросы и информация по поездке — в привычном мессенджере.</p>
-    </div>
-  </div>
-</section>
-
-<section class="container section-bottom">
   <div class="cta-banner">
-    <div>
-      <h2>Присоединяйтесь к следующей поездке</h2>
-      <p>Выберите тур и оставьте заявку — это займёт пару минут.</p>
-    </div>
+    <h2>Присоединяйтесь к следующей поездке</h2>
     <a class="btn btn-accent btn-lg" href="{{ base }}/tours">Смотреть туры {{ icon("arrow") }}</a>
   </div>
 </section>
