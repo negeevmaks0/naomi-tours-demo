@@ -17,17 +17,20 @@ from aiogram.types import BotCommand
 from app.config import load_settings
 
 BOT_NAME = "Naomi Tours"  # до 64 символов
-BOT_SHORT_DESCRIPTION = (  # до 120 символов: профиль и превью ссылки
-    "Заявки на групповые поездки Naomi Tours. Заявка — не бронирование."
+BOT_SHORT_DESCRIPTION = (  # до 120 символов: «About» в профиле и превью ссылки на бота
+    "Групповые поездки из Франкфурта и Майнца: Испания, Грузия, Франция. Заявки на туры."
 )
 BOT_DESCRIPTION = (  # до 512 символов: экран до нажатия «Start»
-    "Бот Naomi Tours для отправки заявок на групповые поездки.\n\n"
-    "Выберите тур на сайте и нажмите «Оставить заявку» — бот откроется уже с выбранной поездкой.\n\n"
-    "Отправка заявки не является бронированием и не подтверждает наличие мест."
+    "Здесь оставляют заявки на групповые поездки Naomi Tours "
+    "с выездом из Франкфурта и Майнца.\n\n"
+    "1. Выберите тур на сайте\n"
+    "2. Нажмите «Оставить заявку» — бот откроется с этим туром\n"
+    "3. Укажите имя\n\n"
+    "Заявка не является бронированием: место подтверждает организатор."
 )
 BOT_COMMANDS = [
-    BotCommand(command="start", description="Начать: как выбрать тур и оставить заявку"),
-    BotCommand(command="cancel", description="Отменить заполнение заявки"),
+    BotCommand(command="start", description="Главное меню"),
+    BotCommand(command="cancel", description="Отменить заявку"),
 ]
 
 assert len(BOT_NAME) <= 64 and len(BOT_SHORT_DESCRIPTION) <= 120 and len(BOT_DESCRIPTION) <= 512

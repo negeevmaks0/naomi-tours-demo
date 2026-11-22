@@ -80,17 +80,26 @@ python -m app.bot.profile --apply   # записать имя «Naomi Tours», �
 ```
 То же вручную через [@BotFather](https://t.me/BotFather): `/mybots` → выбрать бота → **Edit Bot**:
 - **Edit Name** → `Naomi Tours`;
-- **Edit About** (короткое описание, до 120 символов) → текст `BOT_SHORT_DESCRIPTION` из `profile.py`;
+- **Edit About** (до 120 символов, видно в профиле) → текст `BOT_SHORT_DESCRIPTION` из `profile.py`;
 - **Edit Description** (экран до нажатия «Start», до 512 символов) → текст `BOT_DESCRIPTION`;
-- **Edit Botpic** → логотип (квадратное изображение, от 512×512 px);
-- **Edit Commands** → `start - Начать: как выбрать тур и оставить заявку` и `cancel - Отменить заполнение заявки`.
+- **Edit Description Picture** → `design/bot/description.jpg` (640×360);
+- **Edit Botpic** → `design/bot/avatar-navy.png` или `design/bot/avatar-orange.png` (640×640);
+- **Edit Commands** → две строки: `start - Главное меню` и `cancel - Отменить заявку`.
 
-Username (`@testerspy_bot`) меняется только у BotFather и не может быть изменён скриптом. После смены username обновите `BOT_USERNAME` в `.env` и пересоберите статический сайт — иначе кнопки «Оставить заявку» поведут на старый адрес.
+Картинки пересоздаются командой `python design/make_bot_images.py`.
+
+**Username бота у BotFather изменить нельзя** — для нового адреса (например, `@NaomiToursBot`) создаётся новый бот: `/newbot` → имя `Naomi Tours` → username. Затем:
+1. В `.env` замените `BOT_TOKEN` и `BOT_USERNAME` на данные нового бота.
+2. Оформите профиль нового бота (см. выше).
+3. Пересоберите и опубликуйте сайт — иначе кнопки «Оставить заявку» поведут на старого бота:
+   ```powershell
+   python -m app.export_static --out docs --base-path naomi-tours-demo
+   ```
+4. Перезапустите `python -m app.bot`.
 
 ## Где смотреть заявки
 Заявки хранятся в `data/naomi_tours_demo.db` (таблица `applications`, поле `tour_id` ссылается на `tours.id`).
-1. Откройте **DB Browser for SQLite** → **Open Database** → `data
-aomi_tours_demo.db`.
+1. Откройте **DB Browser for SQLite** → **Open Database** → `data/naomi_tours_demo.db`.
 2. Вкладка **Execute SQL**:
    ```sql
    SELECT a.id, a.created_at, t.title, a.name, a.comment, a.telegram_username

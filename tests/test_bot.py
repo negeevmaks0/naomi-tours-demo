@@ -26,7 +26,18 @@ def make_state() -> FSMContext:
 
 
 def make_message(text: str = "") -> SimpleNamespace:
-    return SimpleNamespace(text=text, from_user=USER, answer=AsyncMock())
+    """Фейковое сообщение: все ответы (текст и фото) копятся в .sent как (текст, клавиатура, фото)."""
+    msg = SimpleNamespace(text=text, from_user=USER, sent=[], edit_reply_markup=AsyncMock())
+
+    async def answer(text, reply_markup=None, **_):
+        msg.sent.append((text, reply_markup, None))
+
+    async def answer_photo(photo, caption=None, reply_markup=None, **_):
+        msg.sent.append((caption, reply_markup, photo))
+
+    msg.answer = AsyncMock(side_effect=answer)
+    msg.answer_photo = AsyncMock(side_effect=answer_photo)
+    return msg
 
 
 def make_callback(data: str) -> SimpleNamespace:
@@ -34,7 +45,16 @@ def make_callback(data: str) -> SimpleNamespace:
 
 
 def last_text(message) -> str:
-    return message.answer.call_args.args[0]
+    return message.sent[-1][0]
+
+
+def last_markup(message):
+    return message.sent[-1][1]
+
+
+def button_urls(markup) -> list[str]:
+    rows = getattr(markup, "inline_keyboard", None) or []
+    return [button.url for row in rows for button in row if button.url]
 
 
 def start(args: str | None, settings, state=None):
@@ -54,7 +74,8 @@ def tour_id(db, code: str) -> int:
 
 def test_start_without_argument_points_to_catalog(db, settings):
     message = start(None, settings)
-    assert "http://testserver/tours" in last_text(message)
+    assert "Naomi Tours" in last_text(message)
+    assert button_urls(last_markup(message)) == ["http://testserver/tours"]
 
 
 def test_start_with_valid_code_shows_tour(db, settings):
@@ -62,18 +83,24 @@ def test_start_with_valid_code_shows_tour(db, settings):
     text = last_text(message)
     assert "Грузия — авиатур" in text
     assert "20–27 марта 2027" in text
-    keyboard = message.answer.call_args.kwargs["reply_markup"]
+    keyboard = last_markup(message)
     assert keyboard.inline_keyboard[0][0].callback_data == f"apply:{tour_id(db, 'georgia_2027_03')}"
+    assert button_urls(keyboard) == ["http://testserver/tours/georgia_2027_03"]
+    assert message.sent[-1][2] is None  # у Грузии нет фото — карточка текстом
 
 
-def test_start_demo_dates_are_marked(db, settings):
-    assert "условные" in last_text(start("andalusia_2027_03", settings))
+def test_tour_with_photo_is_sent_as_photo_card(db, settings):
+    message = start("andalusia_2027_03", settings)
+    caption, keyboard, photo = message.sent[-1]
+    assert photo is not None and str(photo.path).endswith("andalusia.jpg")
+    assert "условные" in caption and len(caption) <= handlers.CAPTION_LIMIT
+    assert keyboard.inline_keyboard[0][0].callback_data.startswith("apply:")
 
 
 def test_start_with_unknown_code(db, settings):
-    text = last_text(start("no_such_tour", settings))
-    assert "Не удалось найти тур" in text
-    assert "http://testserver/tours" in text
+    message = start("no_such_tour", settings)
+    assert "Не нашли тур" in last_text(message)
+    assert button_urls(last_markup(message)) == ["http://testserver/tours"]
 
 
 def test_start_with_finished_tour(db, settings):
@@ -103,7 +130,7 @@ def test_full_application_flow_saves_with_correct_tour(db, settings):
     state, summary_text, confirm = _fill_application(db, settings, "lloret_2027_06", bot)
 
     assert "Проверьте заявку" in summary_text
-    assert "Анна Тест" in summary_text and "не подтверждает бронирование" in summary_text
+    assert "Анна Тест" in summary_text and "не является бронированием" in summary_text
 
     application = db.scalar(select(Application))
     assert application.tour_id == tour_id(db, "lloret_2027_06")
@@ -112,7 +139,8 @@ def test_full_application_flow_saves_with_correct_tour(db, settings):
     assert application.telegram_user_id == USER.id
     assert application.telegram_username == USER.username
     saved_text = last_text(confirm.message)
-    assert f"Заявка №{application.id} сохранена." in saved_text
+    assert f"Заявка №{application.id} сохранена</b>" in saved_text
+    confirm.message.edit_reply_markup.assert_awaited_once()  # кнопки сводки убраны
     assert "организатор" not in saved_text  # ADMIN_CHAT_ID не задан — ничего не обещаем
     assert "не является бронированием" in saved_text
     assert run(state.get_state()) is None
@@ -169,36 +197,33 @@ def test_failed_admin_notification_keeps_application_and_honest_text(db, setting
     _, _, confirm = _fill_application(db, admin_settings, "georgia_2027_03", bot)
     assert db.scalar(select(Application)) is not None
     text = last_text(confirm.message)
-    assert "сохранена." in text and "отправлена организатору" not in text
+    assert "сохранена</b>" in text and "отправлена организатору" not in text
 
 
 def test_stale_confirm_button_message(db, settings):
     callback = make_callback(handlers.CONFIRM)
     run(handlers.stale_button(callback, settings))
-    text = last_text(callback.message)
-    assert text.startswith("Эта заявка уже не активна.")
-    assert "http://testserver/tours" in text
+    assert last_text(callback.message).startswith("Эта заявка уже не активна.")
+    assert button_urls(last_markup(callback.message)) == ["http://testserver/tours"]
 
 
 @pytest.mark.parametrize("base_url", ["http://127.0.0.1:8000", "http://localhost:8000", "http://0.0.0.0:8000"])
 def test_local_site_url_is_never_sent_to_user(db, settings, base_url):
     local = replace(settings, site_base_url=base_url)
-    messages = [
-        last_text(start(None, local)),
-        last_text(start("georgia_2027_03", local)),
-        last_text(start("no_such_tour", local)),
-        last_text(start("burgundy_2026_11", local)),
-    ]
+    sent = [start(None, local), start("georgia_2027_03", local), start("no_such_tour", local),
+            start("burgundy_2026_11", local)]
     callback = make_callback(handlers.CONFIRM)
     run(handlers.stale_button(callback, local))
-    messages.append(last_text(callback.message))
-    for text in messages:
+    sent.append(callback.message)
+    for message in sent:
+        text, markup = last_text(message), last_markup(message)
         assert "127.0.0.1" not in text and "localhost" not in text and "0.0.0.0" not in text
+        assert button_urls(markup) == []
 
 
 def test_public_site_url_used_in_all_links(db, settings):
     public = replace(settings, site_base_url="https://example.github.io/naomi-tours-demo/")
-    assert "https://example.github.io/naomi-tours-demo/tours" in last_text(start(None, public))
-    card = last_text(start("georgia_2027_03", public))
-    assert "https://example.github.io/naomi-tours-demo/tours/georgia_2027_03" in card
-    assert "https://example.github.io/naomi-tours-demo/tours" in last_text(start("no_such_tour", public))
+    site = "https://example.github.io/naomi-tours-demo"
+    assert button_urls(last_markup(start(None, public))) == [f"{site}/tours"]
+    assert button_urls(last_markup(start("georgia_2027_03", public))) == [f"{site}/tours/georgia_2027_03"]
+    assert button_urls(last_markup(start("no_such_tour", public))) == [f"{site}/tours"]

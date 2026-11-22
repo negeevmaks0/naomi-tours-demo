@@ -4,19 +4,17 @@ from __future__ import annotations
 import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from pathlib import Path
 
 from fastapi import FastAPI, Request
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.config import Settings, get_settings
+from app.config import STATIC_DIR, Settings, get_settings
 from app.database import init_engine
 from app.routers import pages
 from app.services.seed import init_db
 
-STATIC_DIR = Path(__file__).resolve().parent / "static"
 # Пути, для которых 404 остаётся машинным ответом (JSON), а не HTML-страницей.
 NON_HTML_PREFIXES = ("/static/", "/api/", "/health")
 

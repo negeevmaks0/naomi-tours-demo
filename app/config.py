@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DATABASE_URL = "sqlite:///./data/naomi_tours_demo.db"
 SEED_PATH = PROJECT_ROOT / "data" / "seed_tours.json"
+STATIC_DIR = PROJECT_ROOT / "app" / "static"
 DEFAULT_SITE_BASE_URL = "http://127.0.0.1:8000"
 _LOOPBACK_HOSTS = {"localhost", "0.0.0.0", "::1"}
 

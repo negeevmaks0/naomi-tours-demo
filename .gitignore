@@ -12,4 +12,5 @@ data/*.db
 data/*.sqlite3
 data/*.db-journal
 .claude/
-design/
+design/hero-options.jpg
+design/bot/preview.jpg

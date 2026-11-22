@@ -10,6 +10,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (
     CallbackQuery,
+    FSInputFile,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
     KeyboardButton,
@@ -20,7 +21,7 @@ from aiogram.types import (
 )
 
 from app.bot import texts
-from app.config import Settings
+from app.config import STATIC_DIR, Settings
 from app.database import session_scope
 from app.models import Application, Tour
 from app.services import tours as tour_service
@@ -38,6 +39,7 @@ APPLY_PREFIX = "apply:"
 SKIP_COMMENT = "comment:skip"
 CONFIRM = "app:confirm"
 CANCEL = "app:cancel"
+CAPTION_LIMIT = 1024  # ограничение Telegram на подпись к фото
 
 
 class ApplicationForm(StatesGroup):
@@ -48,10 +50,22 @@ class ApplicationForm(StatesGroup):
 
 # ---------- клавиатуры ----------
 
-def apply_keyboard(tour: Tour) -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(text="📝 Оставить заявку", callback_data=f"{APPLY_PREFIX}{tour.id}")
-    ]])
+def _site_button(text: str, url: str) -> InlineKeyboardButton:
+    return InlineKeyboardButton(text=text, url=url)
+
+
+def catalog_keyboard(settings: Settings) -> InlineKeyboardMarkup | None:
+    """Кнопка на каталог — только если сайт открывается не только на этом компьютере."""
+    if not settings.site_is_public:
+        return None
+    return InlineKeyboardMarkup(inline_keyboard=[[_site_button("🌍 Открыть каталог", settings.catalog_url)]])
+
+
+def tour_keyboard(tour: Tour, settings: Settings) -> InlineKeyboardMarkup:
+    rows = [[InlineKeyboardButton(text="📝 Оставить заявку", callback_data=f"{APPLY_PREFIX}{tour.id}")]]
+    if settings.site_is_public:
+        rows.append([_site_button("🌐 Подробнее на сайте", settings.tour_url(tour.tour_code))])
+    return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
 def name_keyboard(user: User | None) -> ReplyKeyboardMarkup | ReplyKeyboardRemove:
@@ -93,8 +107,24 @@ def _load_public_tour(tour_id: int) -> tour_service.TourLookup:
 
 def _lookup_error_text(lookup: tour_service.TourLookup, settings: Settings) -> str:
     if lookup.status is tour_service.LookupStatus.UNAVAILABLE and lookup.tour is not None:
-        return texts.tour_unavailable(lookup.tour, settings)
-    return texts.tour_not_found(settings)
+        return texts.tour_unavailable(lookup.tour, settings.site_is_public)
+    return texts.tour_not_found(settings.site_is_public)
+
+
+def tour_photo_path(tour: Tour):
+    """Локальное фото тура для карточки в боте; None, если фото нет."""
+    if not tour.image:
+        return None
+    path = STATIC_DIR / tour.image
+    return path if path.is_file() else None
+
+
+async def _drop_buttons(message: Message) -> None:
+    """Убирает кнопки с уже отвеченного сообщения, чтобы их нельзя было нажать повторно."""
+    try:
+        await message.edit_reply_markup(reply_markup=None)
+    except TelegramAPIError as exc:
+        logger.debug("Could not remove buttons: %s", exc.__class__.__name__)
 
 
 async def notify_admin(bot: Bot, settings: Settings, application: Application, tour: Tour) -> bool:
@@ -116,7 +146,8 @@ async def _show_summary(message: Message, state: FSMContext, username: str | Non
     lookup = _load_public_tour(data["tour_id"])
     if lookup.status is not tour_service.LookupStatus.OK:
         await state.clear()
-        await message.answer(texts.session_expired(settings), reply_markup=ReplyKeyboardRemove())
+        await message.answer(texts.session_expired(settings.site_is_public),
+                             reply_markup=catalog_keyboard(settings))
         return
     await state.set_state(ApplicationForm.confirm)
     await message.answer(
@@ -134,15 +165,23 @@ async def start_with_code(message: Message, command: CommandObject, state: FSMCo
     with session_scope() as session:
         lookup = tour_service.find_public_tour(session, command.args or "", tour_service.current_date())
     if lookup.status is not tour_service.LookupStatus.OK:
-        await message.answer(_lookup_error_text(lookup, settings))
+        await message.answer(_lookup_error_text(lookup, settings), reply_markup=catalog_keyboard(settings))
         return
-    await message.answer(texts.tour_card(lookup.tour, settings), reply_markup=apply_keyboard(lookup.tour))
+    tour = lookup.tour
+    card = texts.tour_card(tour)
+    keyboard = tour_keyboard(tour, settings)
+    photo = tour_photo_path(tour)
+    if photo is not None and len(card) <= CAPTION_LIMIT:
+        await message.answer_photo(FSInputFile(photo), caption=card, reply_markup=keyboard)
+    else:
+        await message.answer(card, reply_markup=keyboard)
 
 
 @router.message(CommandStart())
 async def start_plain(message: Message, state: FSMContext, settings: Settings) -> None:
     await state.clear()
-    await message.answer(texts.welcome(settings), reply_markup=ReplyKeyboardRemove())
+    await message.answer(texts.welcome(settings.site_is_public),
+                         reply_markup=catalog_keyboard(settings) or ReplyKeyboardRemove())
 
 
 # ---------- отмена ----------
@@ -159,6 +198,7 @@ async def cancel_command(message: Message, state: FSMContext) -> None:
 async def cancel_callback(callback: CallbackQuery, state: FSMContext) -> None:
     await state.clear()
     await callback.answer()
+    await _drop_buttons(callback.message)
     await callback.message.answer(texts.CANCELLED, reply_markup=ReplyKeyboardRemove())
 
 
@@ -169,12 +209,14 @@ async def apply_start(callback: CallbackQuery, state: FSMContext, settings: Sett
     await callback.answer()
     raw_id = callback.data.removeprefix(APPLY_PREFIX)
     if not raw_id.isdigit():
-        await callback.message.answer(texts.tour_not_found(settings))
+        await callback.message.answer(texts.tour_not_found(settings.site_is_public),
+                                      reply_markup=catalog_keyboard(settings))
         return
     lookup = _load_public_tour(int(raw_id))
     if lookup.status is not tour_service.LookupStatus.OK:
         await state.clear()
-        await callback.message.answer(_lookup_error_text(lookup, settings))
+        await callback.message.answer(_lookup_error_text(lookup, settings),
+                                      reply_markup=catalog_keyboard(settings))
         return
     await state.clear()
     await state.update_data(tour_id=lookup.tour.id)
@@ -191,7 +233,7 @@ async def process_name(message: Message, state: FSMContext) -> None:
         return
     await state.update_data(name=name)
     await state.set_state(ApplicationForm.comment)
-    await message.answer("Спасибо!", reply_markup=ReplyKeyboardRemove())
+    await message.answer(texts.name_accepted(name), reply_markup=ReplyKeyboardRemove())
     await message.answer(texts.ask_comment(), reply_markup=comment_keyboard())
 
 
@@ -210,6 +252,7 @@ async def process_comment(message: Message, state: FSMContext, settings: Setting
 @router.callback_query(ApplicationForm.comment, F.data == SKIP_COMMENT)
 async def skip_comment(callback: CallbackQuery, state: FSMContext, settings: Settings) -> None:
     await callback.answer()
+    await _drop_buttons(callback.message)
     await state.update_data(comment="")
     await _show_summary(callback.message, state, callback.from_user.username, settings)
 
@@ -218,13 +261,15 @@ async def skip_comment(callback: CallbackQuery, state: FSMContext, settings: Set
 async def confirm_application(callback: CallbackQuery, state: FSMContext, bot: Bot,
                               settings: Settings) -> None:
     await callback.answer()
+    await _drop_buttons(callback.message)
     data = await state.get_data()
     user = callback.from_user
     with session_scope() as session:
         tour = session.get(Tour, data.get("tour_id", 0))
         if tour is None or not tour.is_public(tour_service.current_date()):
             await state.clear()
-            await callback.message.answer(texts.session_expired(settings))
+            await callback.message.answer(texts.session_expired(settings.site_is_public),
+                                          reply_markup=catalog_keyboard(settings))
             return
         application = create_application(
             session,
@@ -237,13 +282,18 @@ async def confirm_application(callback: CallbackQuery, state: FSMContext, bot: B
     await state.clear()
     logger.info("Demo application %s saved for tour %s", application.id, tour.tour_code)
     notified = await notify_admin(bot, settings, application, tour)
-    await callback.message.answer(texts.application_saved(application, organizer_notified=notified))
+    await callback.message.answer(
+        texts.application_saved(application, tour, organizer_notified=notified),
+        reply_markup=catalog_keyboard(settings),
+    )
 
 
 @router.callback_query(F.data.in_({CONFIRM, SKIP_COMMENT}))
 async def stale_button(callback: CallbackQuery, settings: Settings) -> None:
     await callback.answer()
-    await callback.message.answer(texts.session_expired(settings))
+    await _drop_buttons(callback.message)
+    await callback.message.answer(texts.session_expired(settings.site_is_public),
+                                  reply_markup=catalog_keyboard(settings))
 
 
 @router.message(StateFilter(ApplicationForm.name, ApplicationForm.comment))
@@ -258,4 +308,4 @@ async def text_on_confirm(message: Message) -> None:
 
 @router.message()
 async def fallback(message: Message, settings: Settings) -> None:
-    await message.answer(texts.welcome(settings))
+    await message.answer(texts.welcome(settings.site_is_public), reply_markup=catalog_keyboard(settings))
