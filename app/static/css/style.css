@@ -445,11 +445,6 @@ p { margin: 0 0 1em; }
 .organizer-card { display: flex; gap: 14px; align-items: center; margin-top: 18px; padding: 16px 18px; background: var(--surface); border-radius: var(--radius-sm); box-shadow: var(--shadow); }
 .organizer-card b, .organizer-card span:not(.feature-icon):not(.booking-label) { display: block; color: var(--navy); }
 .unlisted-note { display: flex; gap: 8px; align-items: flex-start; margin: 16px 0 0; padding: 12px 14px; border-radius: var(--radius-sm); background: #fff1e0; color: #7a4a10; font-size: .92rem; }
-/* Фото низкого разрешения на широких фоновых блоках: лёгкое размытие скрывает пикселизацию,
-   содержимое снимка не меняется (VIS-01). */
-@media (min-width: 900px) {
-  .hero-bg, .page-hero-bg { filter: blur(2px); transform: scale(1.04); }
-}
 /* --- Редакция без лишнего текста: новые элементы --- */
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 

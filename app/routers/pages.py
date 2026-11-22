@@ -35,6 +35,7 @@ templates.env.globals["destination_hue"] = destination_hue
 router = APIRouter()
 
 HOME_TOURS_LIMIT = 3
+HOME_HERO = "images/hero/mainz-bridge.jpg"
 SORT_OPTIONS = {"nearest": "Сначала ближайшие", "latest": "Сначала поздние"}
 
 
@@ -92,7 +93,8 @@ def home(
     return templates.TemplateResponse(
         request,
         "index.html",
-        {"tours": tours[:HOME_TOURS_LIMIT], "total": len(tours), "active": "home"},
+        {"tours": tours[:HOME_TOURS_LIMIT], "total": len(tours), "active": "home",
+         "hero_image": HOME_HERO},
     )
 
 
