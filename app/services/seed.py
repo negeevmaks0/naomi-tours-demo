@@ -43,27 +43,44 @@ def load_seed_records(path: Path = SEED_PATH) -> list[dict]:
 
 
 def seed_tours(session: Session, records: list[dict]) -> None:
+    """Добавляет новые туры из seed и обновляет нетронутые; туры, изменённые в админке, не трогает."""
     for record in records:
         tour = session.scalar(select(Tour).where(Tour.tour_code == record["tour_code"]))
         if tour is None:
-            session.add(Tour(**record))
-        else:
+            session.add(Tour(**record, source="seed"))
+        elif tour.source == "seed":
             for key, value in record.items():
                 setattr(tour, key, value)
 
 
-# Колонки, добавленные после первой версии схемы: имя -> DDL для ALTER TABLE.
-_ADDED_TOUR_COLUMNS = {"listed": "BOOLEAN NOT NULL DEFAULT 1"}
+# Колонки, добавленные после первой версии схемы: таблица -> {имя: DDL для ALTER TABLE}.
+_ADDED_COLUMNS = {
+    "tours": {
+        "listed": "BOOLEAN NOT NULL DEFAULT 1",
+        "forum_topic_id": "INTEGER",
+        "announcement_message_id": "INTEGER",
+        "source": "VARCHAR(16) NOT NULL DEFAULT 'seed'",
+    },
+    "applications": {
+        "decided_at": "DATETIME",
+        "invite_link": "VARCHAR(200)",
+        "invite_error": "VARCHAR(300)",
+    },
+}
 
 
 def _add_missing_columns(engine: Engine) -> None:
     """Минимальная миграция для уже существующей локальной SQLite-базы."""
-    existing = {col["name"] for col in inspect(engine).get_columns("tours")}
+    inspector = inspect(engine)
     with engine.begin() as conn:
-        for name, ddl in _ADDED_TOUR_COLUMNS.items():
-            if name not in existing:
-                conn.execute(text(f"ALTER TABLE tours ADD COLUMN {name} {ddl}"))
-                logger.info("Added column tours.%s", name)
+        for table, columns in _ADDED_COLUMNS.items():
+            existing = {col["name"] for col in inspector.get_columns(table)}
+            for name, ddl in columns.items():
+                if name not in existing:
+                    conn.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {ddl}"))
+                    logger.info("Added column %s.%s", table, name)
+        # Статус заявок первой версии.
+        conn.execute(text("UPDATE applications SET status = 'new' WHERE status = 'demo_new'"))
 
 
 def init_db(engine: Engine, seed_path: Path = SEED_PATH) -> None:

@@ -13,6 +13,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_DATABASE_URL = "sqlite:///./data/naomi_tours_demo.db"
 SEED_PATH = PROJECT_ROOT / "data" / "seed_tours.json"
 STATIC_DIR = PROJECT_ROOT / "app" / "static"
+UPLOADS_DIR = STATIC_DIR / "images" / "uploads"
 DEFAULT_SITE_BASE_URL = "http://127.0.0.1:8000"
 _LOOPBACK_HOSTS = {"localhost", "0.0.0.0", "::1"}
 
@@ -39,6 +40,12 @@ class Settings:
     # Данные организатора показываются на сайте, только если явно заданы в .env.
     organizer_name: str = ""
     organizer_contact: str = ""
+    # Админ-панель (Этап 3): пароль входа и секрет подписи cookie. Без пароля админка выключена.
+    admin_password: str = ""
+    app_secret: str = ""
+    # Автопубликация сайта: git-клон репозитория с GitHub Pages и префикс путей Pages.
+    site_repo_dir: str = ""
+    site_pages_base_path: str = ""
 
     @property
     def site_is_public(self) -> bool:
@@ -80,6 +87,10 @@ def load_settings() -> Settings:
         base_path=_normalize_base_path(os.getenv("SITE_BASE_PATH", "")),
         organizer_name=os.getenv("ORGANIZER_NAME", "").strip(),
         organizer_contact=os.getenv("ORGANIZER_CONTACT", "").strip(),
+        admin_password=os.getenv("ADMIN_PASSWORD", "").strip(),
+        app_secret=os.getenv("APP_SECRET", "").strip(),
+        site_repo_dir=os.getenv("SITE_REPO_DIR", "").strip(),
+        site_pages_base_path=_normalize_base_path(os.getenv("SITE_PAGES_BASE_PATH", "")),
     )
 
 

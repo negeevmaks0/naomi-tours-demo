@@ -1,0 +1,18 @@
+{% extends "admin/base.html" %}
+{% block title %}Вход{% endblock %}
+{% block header %}{% endblock %}
+{% block content %}
+<div class="admin-login">
+  <span class="admin-brand admin-brand-big"><span class="logo-mark">{% from "_icons.html" import icon with context %}{{ icon("compass") }}</span>Naomi Tours</span>
+  {% if disabled %}
+  <p class="admin-notice error">Вход не настроен: задайте ADMIN_PASSWORD в файле .env.</p>
+  {% else %}
+  <form method="post" action="{{ base }}/admin/login" class="admin-card">
+    <label class="admin-label" for="password">Пароль</label>
+    <input class="admin-input" id="password" name="password" type="password" autocomplete="current-password" autofocus required>
+    {% if error %}<p class="admin-error">{{ error }}</p>{% endif %}
+    <button class="admin-btn primary wide" type="submit">Войти</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

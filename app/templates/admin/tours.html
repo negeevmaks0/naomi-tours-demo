@@ -1,0 +1,37 @@
+{% extends "admin/base.html" %}
+{% block title %}Туры{% endblock %}
+{% block content %}
+<div class="admin-head-row">
+  <h1 class="admin-h1">Туры</h1>
+  <a class="admin-btn primary" href="{{ base }}/admin/tours/new">+ Добавить тур</a>
+</div>
+
+{% macro tour_row(tour) %}
+<div class="admin-row">
+  <span class="row-title">{{ tour.title }}</span>
+  <span class="row-sub">{{ format_date_range(tour.start_date, tour.end_date) }}{% if tour.price_label %} · {{ tour.price_label }}{% endif %}</span>
+  <span class="row-chips">
+    {% if not tour.listed %}<span class="chip-status muted">Скрыт из каталога</span>{% endif %}
+    {% if tour.forum_topic_id %}<span class="chip-status ok">Тема в группе</span>{% endif %}
+  </span>
+  <a class="admin-btn small" href="{{ base }}/admin/tours/{{ tour.id }}/edit">Изменить</a>
+</div>
+{% endmacro %}
+
+{% if upcoming %}
+<div class="admin-table">{% for tour in upcoming %}{{ tour_row(tour) }}{% endfor %}</div>
+{% else %}
+<p class="admin-empty">Актуальных туров нет.</p>
+{% endif %}
+
+{% if past %}
+<details class="admin-past">
+  <summary>Прошедшие и начавшиеся ({{ past|length }})</summary>
+  <div class="admin-table">{% for tour in past %}{{ tour_row(tour) }}{% endfor %}</div>
+</details>
+{% endif %}
+
+{% if publish %}
+<p class="admin-hint">Последнее обновление сайта: {% if publish[1] == "published" %}опубликовано{% elif publish[1] == "nothing" %}изменений не было{% else %}<span class="admin-error-inline">ошибка — сообщите разработчику</span>{% endif %}.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,21 @@
+{# Состояние демо-группы Telegram. #}
+{% if group %}
+<div class="group-box ok">
+  <span>✅ Группа <b>«{{ group.title }}»</b> подключена</span>
+  <form method="post" action="{{ base }}/admin/group/disconnect"><button class="admin-link" type="submit">Отключить</button></form>
+</div>
+{% elif pending_group %}
+<div class="group-box wait">
+  <span>Бот добавлен в группу <b>«{{ pending_group.title }}»</b>.</span>
+  <form method="post" action="{{ base }}/admin/group/connect"><button class="admin-btn primary" type="submit">Подключить</button></form>
+</div>
+{% else %}
+<div class="group-box">
+  <b>Группа не подключена</b>
+  <ol>
+    <li>Создайте группу в Telegram и включите в настройках «Темы».</li>
+    <li>Добавьте бота администратором.</li>
+    <li>Обновите эту страницу и нажмите «Подключить».</li>
+  </ol>
+</div>
+{% endif %}

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Админка{% endblock %} — Naomi Tours</title>
+  <link rel="stylesheet" href="{{ static_url('css/style.css') }}">
+  <link rel="stylesheet" href="{{ static_url('css/admin.css') }}">
+</head>
+<body class="admin">
+  {% block header %}
+  <header class="admin-header">
+    <div class="admin-wrap admin-header-inner">
+      <span class="admin-brand"><span class="logo-mark">{% from "_icons.html" import icon with context %}{{ icon("compass") }}</span>Naomi Tours</span>
+      <nav class="admin-tabs">
+        <a href="{{ base }}/admin/applications" class="admin-tab{% if active == 'applications' %} active{% endif %}">Заявки</a>
+        <a href="{{ base }}/admin/tours" class="admin-tab{% if active == 'tours' %} active{% endif %}">Туры</a>
+      </nav>
+      <form method="post" action="{{ base }}/admin/logout"><button class="admin-link" type="submit">Выйти</button></form>
+    </div>
+  </header>
+  {% endblock %}
+  <main class="admin-wrap admin-main">
+    {% if notice %}<p class="admin-notice {{ notice[0] }}" role="status">{{ notice[1] }}</p>{% endif %}
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

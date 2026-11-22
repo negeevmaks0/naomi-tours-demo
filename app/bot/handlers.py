@@ -2,14 +2,18 @@
 from __future__ import annotations
 
 import logging
+from html import escape
 
 from aiogram import Bot, F, Router
+from sqlalchemy import select
 from aiogram.exceptions import TelegramAPIError
 from aiogram.filters import Command, CommandObject, CommandStart, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (
     CallbackQuery,
+    ChatJoinRequest,
+    ChatMemberUpdated,
     FSInputFile,
     InlineKeyboardButton,
     InlineKeyboardMarkup,
@@ -24,6 +28,8 @@ from app.bot import texts
 from app.config import STATIC_DIR, Settings
 from app.database import session_scope
 from app.models import Application, Tour
+from app.models.application import STATUS_APPROVED
+from app.services import app_settings, telegram_group
 from app.services import tours as tour_service
 from app.services.applications import (
     ApplicationValidationError,
@@ -34,6 +40,8 @@ from app.services.applications import (
 
 logger = logging.getLogger(__name__)
 router = Router(name="naomi_tours")
+# Бот — администратор демо-группы и видит все сообщения в ней: отвечаем только в личных чатах.
+router.message.filter(F.chat.type == "private")
 
 APPLY_PREFIX = "apply:"
 SKIP_COMMENT = "comment:skip"
@@ -294,6 +302,61 @@ async def stale_button(callback: CallbackQuery, settings: Settings) -> None:
     await _drop_buttons(callback.message)
     await callback.message.answer(texts.session_expired(settings.site_is_public),
                                   reply_markup=catalog_keyboard(settings))
+
+
+# ---------- демо-группа ----------
+
+GROUP_TYPES = {"group", "supergroup"}
+ACTIVE_STATUSES = {"administrator", "member"}
+
+
+@router.my_chat_member()
+async def bot_membership_changed(event: ChatMemberUpdated) -> None:
+    """Бота добавили в группу — она появится в админке для подтверждения; удалили — забываем её."""
+    if event.chat.type not in GROUP_TYPES:
+        return
+    with session_scope() as session:
+        if event.new_chat_member.status in ACTIVE_STATUSES:
+            connected = app_settings.connected_group(session)
+            if connected is None or connected.chat_id != event.chat.id:
+                app_settings.remember_pending_group(session, event.chat.id, event.chat.title or "Группа",
+                                                    bool(event.chat.is_forum))
+                logger.info("Bot added to group %s, waiting for admin confirmation", event.chat.id)
+        else:
+            app_settings.forget_group(session, event.chat.id)
+            logger.info("Bot removed from group %s", event.chat.id)
+
+
+def approved_tours_for(user_id: int) -> list[Tour]:
+    with session_scope() as session:
+        return list(session.scalars(
+            select(Tour).join(Application, Application.tour_id == Tour.id)
+            .where(Application.telegram_user_id == user_id, Application.status == STATUS_APPROVED)
+        ))
+
+
+@router.chat_join_request()
+async def join_request(request: ChatJoinRequest, bot: Bot) -> None:
+    """В группу впускаем только людей с одобренной заявкой."""
+    with session_scope() as session:
+        group = app_settings.connected_group(session)
+    if group is None or request.chat.id != group.chat_id:
+        return
+    tours = approved_tours_for(request.from_user.id)
+    if not tours:
+        await request.decline()
+        logger.info("Join request declined: no approved application")
+        return
+    await request.approve()
+    lines = ["👋 Добро пожаловать в группу участников!"]
+    for tour in tours:
+        link = telegram_group.topic_link(group.chat_id, tour.forum_topic_id)
+        if link:
+            lines.append(f"Тема вашего тура «{escape(tour.title)}»: {link}")
+    try:
+        await bot.send_message(request.from_user.id, "\n".join(lines))
+    except TelegramAPIError as exc:
+        logger.warning("Welcome message failed: %s", exc.__class__.__name__)
 
 
 @router.message(StateFilter(ApplicationForm.name, ApplicationForm.comment))

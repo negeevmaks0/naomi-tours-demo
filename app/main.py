@@ -6,13 +6,14 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.responses import RedirectResponse
 from fastapi.exception_handlers import http_exception_handler
 from fastapi.staticfiles import StaticFiles
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.config import STATIC_DIR, Settings, get_settings
 from app.database import init_engine
-from app.routers import pages
+from app.routers import admin, pages
 from app.services.seed import init_db
 
 # Пути, для которых 404 остаётся машинным ответом (JSON), а не HTML-страницей.
@@ -41,6 +42,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     pages.configure_templates(settings)
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
     app.include_router(pages.router)
+    app.include_router(admin.router)
+
+    @app.exception_handler(admin.LoginRequired)
+    async def login_required(request: Request, exc: admin.LoginRequired):
+        return RedirectResponse(f"{settings.base_path}/admin/login", status_code=303)
 
     @app.exception_handler(StarletteHTTPException)
     async def not_found_page(request: Request, exc: StarletteHTTPException):

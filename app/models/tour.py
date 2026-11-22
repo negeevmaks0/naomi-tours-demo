@@ -35,6 +35,11 @@ class Tour(Base):
     included: Mapped[list] = mapped_column(JSON, default=list)
     extras: Mapped[list] = mapped_column(JSON, default=list)
     notes: Mapped[list] = mapped_column(JSON, default=list)
+    # Связь с демо-группой Telegram: тема тура и анонс в общей теме.
+    forum_topic_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    announcement_message_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # seed — из data/seed_tours.json, admin — добавлен в админке.
+    source: Mapped[str] = mapped_column(String(16), default="seed", server_default="seed")
 
     def is_public(self, today: date) -> bool:
         """Тур показывается публично и принимает заявки, пока он не начался."""

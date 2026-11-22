@@ -47,7 +47,9 @@ async def run() -> None:
     logger.info("Bot @%s started; admin notifications: %s",
                 me.username, "on" if settings.admin_chat_id is not None else "off")
     try:
-        await build_dispatcher(settings).start_polling(bot)
+        dispatcher = build_dispatcher(settings)
+        # Явно подписываемся на все используемые обновления, включая вступление в группу.
+        await dispatcher.start_polling(bot, allowed_updates=dispatcher.resolve_used_update_types())
     finally:
         await bot.session.close()
         engine.dispose()

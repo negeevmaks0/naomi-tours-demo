@@ -1,0 +1,40 @@
+# Naomi Tours на сервере: сайт с админкой (web) и Telegram-бот (bot), общая база SQLite.
+# Секреты — в .env рядом с этим файлом (не в Git). Запуск: docker compose up -d --build
+x-common: &common
+  build: .
+  env_file: .env
+  restart: unless-stopped
+  environment:
+    DATABASE_URL: sqlite:////app/data/db/naomi_tours.db
+  volumes:
+    - ./db:/app/data/db
+    - ./uploads:/app/app/static/images/uploads
+
+services:
+  web:
+    <<: *common
+    command: >
+      uvicorn app.main:create_app --factory --host 0.0.0.0 --port 8000
+      --proxy-headers --forwarded-allow-ips="*"
+    environment:
+      DATABASE_URL: sqlite:////app/data/db/naomi_tours.db
+      # Админка открывается за общим шлюзом по пути /naomi/.
+      SITE_BASE_PATH: /naomi
+      SITE_REPO_DIR: /site-repo
+      GIT_SSH_COMMAND: ssh -i /keys/deploy_key -o UserKnownHostsFile=/keys/known_hosts -o StrictHostKeyChecking=yes
+      GIT_AUTHOR_NAME: Naomi Tours admin
+      GIT_AUTHOR_EMAIL: naomi-tours-admin@users.noreply.github.com
+      GIT_COMMITTER_NAME: Naomi Tours admin
+      GIT_COMMITTER_EMAIL: naomi-tours-admin@users.noreply.github.com
+    volumes:
+      - ./db:/app/data/db
+      - ./uploads:/app/app/static/images/uploads
+      - ./site-repo:/site-repo
+      - ./keys:/keys:ro
+    # Только для контейнеров и самого хоста (docker0): шлюз ходит сюда через host.docker.internal.
+    ports:
+      - "172.17.0.1:8095:8000"
+
+  bot:
+    <<: *common
+    command: python -m app.bot

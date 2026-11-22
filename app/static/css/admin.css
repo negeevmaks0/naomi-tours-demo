@@ -1,0 +1,100 @@
+/* Админ-панель Naomi Tours: крупный шрифт, высокий контраст, большие кнопки, минимум элементов.
+   Цвета и шрифты — из style.css. */
+body.admin { font-size: 18px; background: var(--sand); }
+.admin-wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
+.admin-main { padding-top: 28px; padding-bottom: 64px; }
+
+.admin-header { background: var(--navy); color: #fff; }
+.admin-header-inner { display: flex; align-items: center; gap: 24px; min-height: 72px; flex-wrap: wrap; }
+.admin-brand { display: inline-flex; align-items: center; gap: 10px; font-family: var(--serif); font-size: 1.3rem; font-weight: 700; }
+.admin-brand .logo-mark { width: 38px; height: 38px; }
+.admin-brand-big { font-size: 1.8rem; color: var(--navy); margin-bottom: 24px; }
+.admin-tabs { display: flex; gap: 8px; flex: 1; }
+.admin-tab { color: #dbe5ee; text-decoration: none; font-weight: 700; padding: 10px 20px; border-radius: 999px; font-size: 1.05rem; }
+.admin-tab:hover { background: rgba(255, 255, 255, .1); }
+.admin-tab.active { background: #fff; color: var(--navy); }
+.admin-link { background: none; border: 0; color: inherit; font: inherit; text-decoration: underline; cursor: pointer; padding: 8px; }
+.admin-header .admin-link { color: #dbe5ee; }
+
+.admin-h1 { font-size: 1.9rem; margin: 8px 0 18px; }
+.admin-h2 { font-size: 1.4rem; margin: 40px 0 14px; }
+.admin-head-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+.admin-card { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px 24px; }
+.admin-list { display: grid; gap: 16px; }
+.admin-empty { background: var(--surface); border-radius: var(--radius); padding: 28px; text-align: center; color: var(--muted); }
+.admin-hint { color: var(--muted); font-size: .95rem; margin-top: 18px; }
+.admin-hint-inline { color: var(--muted); font-weight: 400; font-size: .9rem; }
+
+.admin-btn {
+  display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 0 26px;
+  border-radius: 14px; border: 2px solid var(--navy); background: #fff; color: var(--navy);
+  font: inherit; font-weight: 700; text-decoration: none; cursor: pointer; white-space: nowrap;
+}
+.admin-btn:hover { background: #eef2f6; }
+.admin-btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.admin-btn.primary:hover { background: var(--accent-2); border-color: var(--accent-2); }
+.admin-btn.small { min-height: 44px; padding: 0 18px; font-size: .95rem; }
+.admin-btn.wide { width: 100%; margin-top: 18px; }
+.admin-btn:focus-visible, .admin-input:focus-visible, .admin-tab:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.admin-notice { border-radius: 14px; padding: 16px 20px; font-weight: 600; margin: 0 0 22px; }
+.admin-notice.ok { background: #e3f3ea; color: #1f6b48; }
+.admin-notice.error { background: #fbe4dc; color: #9a3412; }
+.admin-error { color: #b4472c; font-weight: 600; margin: 10px 0 0; }
+.admin-error-inline { color: #b4472c; font-weight: 600; }
+
+/* Состояние группы */
+.group-box { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  background: var(--surface); border-radius: var(--radius); padding: 18px 22px; margin-bottom: 28px; border-left: 6px solid #c9b99f; }
+.group-box.ok { border-left-color: var(--ok); }
+.group-box.wait { border-left-color: var(--accent); }
+.group-box ol { margin: 10px 0 0; padding-left: 22px; width: 100%; }
+.group-box li { margin-bottom: 4px; }
+
+/* Карточка заявки */
+.app-card { display: flex; gap: 20px; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.app-main { flex: 1 1 320px; }
+.app-name { font-size: 1.35rem; font-weight: 700; color: var(--navy); margin: 0 0 4px; }
+.app-tour { margin: 0 0 6px; }
+.app-comment { margin: 0 0 6px; color: #3a4552; font-style: italic; }
+.app-meta { margin: 0; color: var(--muted); font-size: .95rem; }
+.app-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Списки */
+.admin-table { background: var(--surface); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+.admin-row { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 16px 22px; border-bottom: 1px solid var(--line); }
+.admin-row:last-child { border-bottom: 0; }
+.row-title { font-weight: 700; color: var(--navy); flex: 1 1 260px; }
+.row-sub { color: var(--muted); flex: 1 1 220px; }
+.row-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip-status { font-size: .85rem; font-weight: 700; padding: 4px 12px; border-radius: 999px; }
+.chip-status.ok { background: #e3f3ea; color: #1f6b48; }
+.chip-status.muted { background: #ece7df; color: #6b6255; }
+.admin-past { margin-top: 28px; }
+.admin-past summary { cursor: pointer; font-weight: 700; color: var(--navy); padding: 10px 0; }
+
+/* Формы */
+.admin-login { max-width: 420px; margin: 10vh auto 0; text-align: center; }
+.admin-login .admin-card { text-align: left; }
+.admin-form { display: flex; flex-direction: column; }
+.admin-label { display: block; font-weight: 700; color: var(--navy); margin: 18px 0 8px; }
+.admin-form > .admin-label:first-child { margin-top: 0; }
+.admin-input {
+  width: 100%; font: inherit; color: var(--text); background: #fff; border: 2px solid #d6cdbf;
+  border-radius: 12px; padding: 12px 14px; min-height: 52px;
+}
+textarea.admin-input { resize: vertical; line-height: 1.5; }
+.form-grid { display: grid; grid-template-columns: 1fr; gap: 0 18px; }
+@media (min-width: 720px) { .form-grid { grid-template-columns: 1fr 1fr; } }
+.admin-check { display: flex; align-items: center; gap: 12px; margin-top: 18px; font-weight: 600; cursor: pointer; }
+.admin-check input { width: 24px; height: 24px; accent-color: var(--accent); }
+.form-photo { max-width: 260px; border-radius: 12px; margin-bottom: 10px; }
+.form-actions { display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
+
+@media (max-width: 560px) {
+  .admin-header-inner { gap: 10px; padding: 10px 0; }
+  .admin-tabs { order: 3; width: 100%; }
+  .admin-tab { flex: 1; text-align: center; }
+  .app-actions, .app-actions form, .app-actions .admin-btn { width: 100%; }
+}

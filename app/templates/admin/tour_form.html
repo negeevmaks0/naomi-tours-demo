@@ -1,0 +1,74 @@
+{% extends "admin/base.html" %}
+{% block title %}{% if tour %}Изменить тур{% else %}Новый тур{% endif %}{% endblock %}
+{% block content %}
+<h1 class="admin-h1">{% if tour %}Изменить тур{% else %}Новый тур{% endif %}</h1>
+{% if error %}<p class="admin-notice error">{{ error }}</p>{% endif %}
+
+<form class="admin-card admin-form" method="post" enctype="multipart/form-data"
+      action="{{ base }}/admin/tours/{% if tour %}{{ tour.id }}/edit{% else %}new{% endif %}">
+  <label class="admin-label" for="title">Название *</label>
+  <input class="admin-input" id="title" name="title" value="{{ form.title }}" required maxlength="200">
+
+  <div class="form-grid">
+    <div>
+      <label class="admin-label" for="destination">Страна *</label>
+      <input class="admin-input" id="destination" name="destination" value="{{ form.destination }}" required>
+    </div>
+    <div>
+      <label class="admin-label" for="transport">Транспорт</label>
+      <select class="admin-input" id="transport" name="transport">
+        {% for t in transports %}<option{% if form.transport == t %} selected{% endif %}>{{ t }}</option>{% endfor %}
+      </select>
+    </div>
+    <div>
+      <label class="admin-label" for="start_date">Начало *</label>
+      <input class="admin-input" id="start_date" name="start_date" type="date" value="{{ form.start_date }}" required>
+    </div>
+    <div>
+      <label class="admin-label" for="end_date">Окончание *</label>
+      <input class="admin-input" id="end_date" name="end_date" type="date" value="{{ form.end_date }}" required>
+    </div>
+    <div>
+      <label class="admin-label" for="price_label">Цена *</label>
+      <input class="admin-input" id="price_label" name="price_label" value="{{ form.price_label }}" placeholder="например, 650 € в двухместном номере" required>
+    </div>
+    <div>
+      <label class="admin-label" for="duration">Продолжительность</label>
+      <input class="admin-input" id="duration" name="duration" value="{{ form.duration }}" placeholder="например, 3 дня">
+    </div>
+  </div>
+
+  <label class="admin-label" for="subtitle">Маршрут одной строкой</label>
+  <input class="admin-input" id="subtitle" name="subtitle" value="{{ form.subtitle }}" placeholder="например, Рим — Флоренция — Венеция">
+
+  <label class="admin-label" for="summary">Коротко о туре</label>
+  <textarea class="admin-input" id="summary" name="summary" rows="3">{{ form.summary }}</textarea>
+
+  <label class="admin-label" for="program">Программа <span class="admin-hint-inline">— каждый день с новой строки</span></label>
+  <textarea class="admin-input" id="program" name="program" rows="6" placeholder="День 1: Выезд из Франкфурта, вечером прибытие в отель">{{ form.program }}</textarea>
+
+  <div class="form-grid">
+    <div>
+      <label class="admin-label" for="included">Входит в стоимость <span class="admin-hint-inline">— по пункту в строке</span></label>
+      <textarea class="admin-input" id="included" name="included" rows="5">{{ form.included }}</textarea>
+    </div>
+    <div>
+      <label class="admin-label" for="extras">Дополнительно <span class="admin-hint-inline">— по пункту в строке</span></label>
+      <textarea class="admin-input" id="extras" name="extras" rows="5">{{ form.extras }}</textarea>
+    </div>
+  </div>
+
+  <label class="admin-label" for="photo">Фото</label>
+  {% if tour and tour.image %}<img class="form-photo" src="{{ static_url(tour.image) }}" alt="">{% endif %}
+  <input class="admin-input" id="photo" name="photo" type="file" accept="image/jpeg,image/png">
+
+  <label class="admin-check"><input type="checkbox" name="listed"{% if form.listed %} checked{% endif %}> Показывать в каталоге</label>
+  <label class="admin-check"><input type="checkbox" name="dates_are_demo"{% if form.dates_are_demo %} checked{% endif %}> Условные даты</label>
+
+  <div class="form-actions">
+    <button class="admin-btn primary" type="submit">Сохранить</button>
+    <a class="admin-btn" href="{{ base }}/admin/tours">Отмена</a>
+  </div>
+  {% if not tour %}<p class="admin-hint">После сохранения тур появится на сайте и в боте, а в группе — тема тура и анонс.</p>{% endif %}
+</form>
+{% endblock %}
