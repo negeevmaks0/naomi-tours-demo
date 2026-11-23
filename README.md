@@ -1,29 +1,43 @@
 # Naomi Tours — Demo
 
-Демонстрационный сайт каталога групповых путешествий и Telegram-бот для заявок на конкретный тур. Закрытый прототип, не коммерческая платформа.
+Демонстрационный сайт каталога групповых путешествий, Telegram-бот для заявок, простая админ-панель и демо-группа Telegram с темами туров. Закрытый прототип, не коммерческая платформа.
 
-Путь пользователя: **каталог → страница тура → «Оставить заявку» → `https://t.me/<BOT_USERNAME>?start=<tour_code>` → бот показывает выбранный тур → тестовая заявка → запись в SQLite.**
+| Что | Где |
+|---|---|
+| Сайт (статическая копия, GitHub Pages) | https://negeevmaks0.github.io/naomi-tours-demo/ |
+| Бот | [@NaomiToursBot](https://t.me/NaomiToursBot) |
+| Админ-панель (сервер владельца, через ngrok) | https://geranium-unsavory-fiscally.ngrok-free.dev/naomi/admin |
+| Репозиторий | https://github.com/negeevmaks0/naomi-tours-demo |
+
+Документы: [ROADMAP.md](ROADMAP.md) — этапы и статус, [WORK_REPORT.md](WORK_REPORT.md) — журнал выполненной работы и проверок, [KNOWN_ISSUES.md](KNOWN_ISSUES.md) — известные ограничения, [AUDIT_REPORT.md](AUDIT_REPORT.md) — приёмка 21.11.2026 и её закрытие, [CONTENT_GUIDE.md](CONTENT_GUIDE.md) — правила контента, [AGENTS.md](AGENTS.md) — правила для разработки.
+
+Путь пользователя: **каталог → страница тура → «Оставить заявку» → `https://t.me/<BOT_USERNAME>?start=<tour_code>` → бот показывает выбранный тур → тестовая заявка → запись в SQLite → организатор одобряет в админке → бот присылает личную ссылку в демо-группу.**
 
 Заявка — только запрос на рассмотрение. Она не является бронированием, не подтверждает наличие мест и не связана с оплатой.
 
 ## Стек
-Python 3.10+ (проверено на 3.10.8), FastAPI + Jinja2, HTML/CSS без JS-фреймворков, SQLite через SQLAlchemy 2.x, aiogram 3, pytest.
+Python 3.10+ (локально 3.10.8, на сервере образ `python:3.11-slim`), FastAPI + Jinja2, HTML/CSS без JS-фреймворков, SQLite через SQLAlchemy 2.x, aiogram 3, Pillow, pytest. На сервере — Docker Compose.
 
 ## Структура
 ```text
 app/
-├── main.py              # фабрика FastAPI-приложения (create_app)
+├── main.py              # фабрика FastAPI-приложения (create_app), HTML-страница 404
 ├── config.py            # настройки из .env
 ├── database.py          # SQLAlchemy engine/сессии
-├── models/              # Tour, Application
+├── models/              # Tour, Application, AppSetting (подключённая группа, статус публикации)
 ├── routers/pages.py     # /, /tours (?sort=nearest|latest), /tours/{tour_code}, /how, /about, /health
-├── services/            # туры и deep link, заявки, загрузка seed
+├── routers/admin.py     # /admin: вход, заявки, туры, подключение группы
+├── services/            # туры и deep link, заявки, seed и миграции, tour_admin (форма тура, фото),
+│                        # telegram_group (темы, анонсы, приглашения), publisher (автопубликация сайта)
 ├── bot/                 # aiogram-бот: handlers.py, texts.py, profile.py, __main__.py
 ├── export_static.py     # статическая копия сайта для GitHub Pages
-├── templates/           # Jinja2-шаблоны
-└── static/{css,images}/ # стили и исходные фото, извлечённые из скриншотов
-data/seed_tours.json     # содержимое туров (источник для БД)
-tests/                   # pytest
+├── templates/           # Jinja2-шаблоны сайта и admin/
+└── static/              # css/ (style.css, admin.css), images/ (фото туров, hero/ — фото шапок, uploads/ — фото из админки)
+data/seed_tours.json     # исходное содержимое туров
+docs/                    # собранная статическая копия сайта (GitHub Pages)
+design/                  # аватарка и картинка профиля бота, make_bot_images.py
+Dockerfile, docker-compose.yml  # запуск на сервере
+tests/                   # pytest (71 тест)
 ```
 
 ## Установка (Windows PowerShell)
@@ -50,13 +64,19 @@ python -m pip --python .venv\Scripts\python.exe install -r requirements.txt
 | `SITE_BASE_PATH` | нет | префикс путей, если сайт открыт не из корня домена (GitHub Pages: `/<repo>`); локально пусто |
 | `ORGANIZER_NAME`, `ORGANIZER_CONTACT` | нет | организатор на странице «О нас» и в подвале; без значений блок не показывается |
 | `DATABASE_URL` | нет | по умолчанию `sqlite:///./data/naomi_tours_demo.db` (путь от корня проекта) |
+| `ADMIN_PASSWORD` | для админки | пароль входа в админ-панель; без него админка выключена |
+| `APP_SECRET` | для админки | случайная строка для подписи cookie входа |
+| `SITE_REPO_DIR` | только сервер | git-клон репозитория сайта для автопубликации; пусто — автопубликация выключена |
+| `SITE_PAGES_BASE_PATH` | только сервер | префикс путей GitHub Pages, сейчас `/naomi-tours-demo` |
 | `DEMO_MODE` | нет | зарезервировано, по умолчанию `true` |
 
 ## Запуск сайта
 ```powershell
 python -m uvicorn app.main:create_app --factory --port 8000
 ```
-Откройте http://127.0.0.1:8000. При старте создаются таблицы и туры загружаются из `data/seed_tours.json` (upsert по `tour_code`, ID туров стабильны).
+Откройте http://127.0.0.1:8000. При старте создаются таблицы, к существующей базе добавляются новые колонки, туры загружаются из `data/seed_tours.json` по `tour_code` (ID стабильны). Туры, изменённые в админке, из seed не перезаписываются.
+
+**Рабочие данные — на сервере.** Заявки, подключённая группа и туры, изменённые в админке, хранятся в `~/naomi-tours/db/naomi_tours.db` на сервере. Локальная база `data/naomi_tours_demo.db` — только для разработки и может отличаться (например, Лиссабон локально скрыт, а на сервере владелец вернул его в каталог).
 
 ## Запуск бота (отдельный процесс)
 ```powershell
@@ -98,11 +118,11 @@ python -m app.bot.profile --apply   # записать имя «Naomi Tours», �
 4. Перезапустите `python -m app.bot`.
 
 ## Где смотреть заявки
-Заявки хранятся в `data/naomi_tours_demo.db` (таблица `applications`, поле `tour_id` ссылается на `tours.id`).
-1. Откройте **DB Browser for SQLite** → **Open Database** → `data/naomi_tours_demo.db`.
+Основной способ — админ-панель, вкладка «Заявки» (см. ниже). Напрямую в базе: таблица `applications`, поле `tour_id` ссылается на `tours.id`, `status` — `new` / `approved` / `rejected`. Рабочая база на сервере — `~/naomi-tours/db/naomi_tours.db`, локальная — `data/naomi_tours_demo.db`.
+1. Откройте **DB Browser for SQLite** → **Open Database** → файл базы.
 2. Вкладка **Execute SQL**:
    ```sql
-   SELECT a.id, a.created_at, t.title, a.name, a.comment, a.telegram_username
+   SELECT a.id, a.created_at, a.status, t.title, a.name, a.comment, a.telegram_username
    FROM applications a JOIN tours t ON t.id = a.tour_id ORDER BY a.id DESC;
    ```
 Чтобы получать заявки сразу в Telegram, укажите свой числовой ID в `ADMIN_CHAT_ID` (узнать его можно, например, у @userinfobot) и перезапустите бота.
@@ -120,7 +140,7 @@ python -m app.export_static --out docs --base-path /<repo>
 
 **Вариант 2 — живой сайт через туннель** (например, Cloudflare Tunnel или ngrok): запустите сайт локально, откройте туннель на порт 8000 и укажите выданный адрес в `SITE_BASE_URL`. Адрес туннеля меняется при каждом запуске, если не настроен постоянный.
 
-В любом случае бот (`python -m app.bot`) должен быть запущен на компьютере — GitHub Pages его не запускает.
+Бот GitHub Pages не запускает: сейчас он работает в Docker на сервере владельца (см. «Сервер»). `SITE_BASE_URL` на сервере и в локальном `.env` — `https://negeevmaks0.github.io/naomi-tours-demo`. После изменения туров в админке сервер пересобирает `docs/` и отправляет на GitHub сам; вручную пересобирать нужно только после правок кода или шаблонов.
 
 ## Админ-панель и демо-группа (Этап 3)
 Адрес на сервере: `https://geranium-unsavory-fiscally.ngrok-free.dev/naomi/admin`. Локально — `http://127.0.0.1:8000/admin`. Вход по паролю `ADMIN_PASSWORD` из `.env`; без пароля админка выключена. При первом входе из браузера бесплатный ngrok показывает своё предупреждение — нажмите **Visit Site** (один раз на браузер).
